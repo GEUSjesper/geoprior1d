@@ -48,11 +48,16 @@ GeoPrior1DApp Python
 
 
 
-Prerequisites:
+The Python module provides a command-line interface and Python API for generating 1D geological priors (not a GUI).
 
-Python installed
+Install from PyPI:
+```bash
+pip install geoprior1d
+```
 
-pip installed
+For detailed information, including usage examples and API documentation, please see:
+
+[geoprior1d/README.md](geoprior1d/README.md)
 
 
 

@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "geoprior1d"
+version = "0.9.9"
+description = "1D geological prior generator for stochastic lithology and resistivity modeling"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Jesper Nørgaard", email = "jesn@geus.dk"}
+]
+maintainers = [
+    {name = "Thomas Mejer Hansen", email = "cultpenguin@gmail.com"}
+]
+keywords = [
+    "geophysics",
+    "geology",
+    "resistivity",
+    "lithology",
+    "prior",
+    "stochastic",
+    "monte-carlo",
+    "subsurface"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+# Core dependencies
+dependencies = [
+    "numpy>=1.20.0",
+    "h5py>=3.0.0",
+    "matplotlib>=3.3.0",
+    "pandas>=1.2.0",
+    "scipy>=1.6.0",
+    "tqdm>=4.60.0",
+    "openpyxl>=3.0.0",
+]
+
+[project.scripts]
+geoprior1d = "geoprior1d.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/GEUSjesper/geoprior1d"
+Documentation = "https://github.com/GEUSjesper/geoprior1d/blob/main/README.md"
+Repository = "https://github.com/GEUSjesper/geoprior1d"
+Issues = "https://github.com/GEUSjesper/geoprior1d/issues"
+
+[tool.setuptools]
+packages = ["geoprior1d", "examples", "examples.data"]
+
+[tool.setuptools.package-data]
+"examples.data" = ["*.xlsx"]
