@@ -48,6 +48,12 @@ def extract_prior_info(filename):
         'min_depth': T_geo2['Min depth'].astype(float).to_numpy(),
     }
 
+    # Normalize probabilities: convert "1" to uniform distribution (preprocessing)
+    for i in range(len(info['Sections']['probabilities'])):
+        if info['Sections']['probabilities'][i][0] == 1:
+            n_types = len(info['Sections']['types'][i])
+            info['Sections']['probabilities'][i] = (np.ones(n_types) / n_types).tolist()
+
     # Resistivity
     res = T_res['Resistivity'].astype(float).to_numpy()
     res_unc = T_res['Resistivity uncertainty'].astype(float).to_numpy()
