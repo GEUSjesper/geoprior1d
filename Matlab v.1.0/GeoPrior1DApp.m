@@ -21,7 +21,7 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
         SummaryButton           matlab.ui.control.Button
         LithAxes                matlab.ui.control.UIAxes
         ResAxes                 matlab.ui.control.UIAxes
-        AddClassButton          matlab.ui.control.Button
+        AddClassButton          matlab.ui.control.Button    
         RemoveClassButton       matlab.ui.control.Button
         AddUnitButton           matlab.ui.control.Button
         RemoveUnitButton        matlab.ui.control.Button

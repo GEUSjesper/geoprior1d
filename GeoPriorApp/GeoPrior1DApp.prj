@@ -1,25 +1,25 @@
 <deployment-project plugin="plugin.ezdeploy" plugin-version="1.0">
-  <configuration file="C:\Users\jesn\Documents\GitHub\GeoPrior\GeoPriorApp.prj" location="C:\Users\jesn\Documents\GitHub\GeoPrior" name="GeoPriorApp" target="target.ezdeploy.standalone" target-name="Application Compiler">
-    <param.appname>GeoPriorApp</param.appname>
+  <configuration build-checksum="2028584008" file="C:\Users\jesn\Documents\GitHub\geoprior1d\GeoPrior1DApp.prj" location="C:\Users\jesn\Documents\GitHub\geoprior1d" name="GeoPrior1DApp" preferred-package-location="C:\Users\jesn\Documents\GeoPrior1DApp\for_redistribution" preferred-package-type="package.type.exe" target="target.ezdeploy.standalone" target-name="Application Compiler">
+    <param.appname>GeoPrior1DApp</param.appname>
     <param.icon />
     <param.icons />
     <param.version>1.0</param.version>
     <param.authnamewatermark>Jesper Nørgaard</param.authnamewatermark>
     <param.email>jesn@geus.dk</param.email>
     <param.company>Geological Survey of Denmark and Greenland</param.company>
-    <param.summary>A tool developed for the INTEGRATE project to generate 1D subsurface realizations from user specified inputs.</param.summary>
-    <param.description>A tool developed for the INTEGRATE project to generate 1D subsurface realizations from user specified inputs.</param.description>
-    <param.screenshot>C:\Users\jesn\Documents\GitHub\INTEGRATE_WP3_GEUS\GeoPrior v.1.0\splash.png</param.screenshot>
+    <param.summary>1D prior generator developed for the INTEGRATE project</param.summary>
+    <param.description>1D prior generator developed for the INTEGRATE project</param.description>
+    <param.screenshot>${PROJECT_ROOT}\Matlab v.1.0\splash.png</param.screenshot>
     <param.guid />
-    <param.installpath.string>\Geological Survey of Denmark and Greenland\GeoPriorApp\</param.installpath.string>
+    <param.installpath.string>\Geological Survey of Denmark and Greenland\GeoPrior1DApp\</param.installpath.string>
     <param.installpath.combo>option.installpath.programfiles</param.installpath.combo>
     <param.logo />
     <param.install.notes />
     <param.target.install.notes />
-    <param.intermediate>${PROJECT_ROOT}\GeoPriorApp\for_testing</param.intermediate>
-    <param.files.only>${PROJECT_ROOT}\GeoPriorApp\for_redistribution_files_only</param.files.only>
-    <param.output>${PROJECT_ROOT}\GeoPriorApp\for_redistribution</param.output>
-    <param.logdir>${PROJECT_ROOT}\GeoPriorApp</param.logdir>
+    <param.intermediate>${PROJECT_ROOT}\GeoPrior1DApp\for_testing</param.intermediate>
+    <param.files.only>${PROJECT_ROOT}\GeoPrior1DApp\for_redistribution_files_only</param.files.only>
+    <param.output>${PROJECT_ROOT}\GeoPrior1DApp\for_redistribution</param.output>
+    <param.logdir>C:\Users\jesn\OneDrive - GEUS</param.logdir>
     <param.enable.clean.build>false</param.enable.clean.build>
     <param.user.defined.mcr.options />
     <param.target.type>subtarget.standalone</param.target.type>
@@ -37,13 +37,13 @@
     <param.checkbox>false</param.checkbox>
     <param.example />
     <param.help.text>Syntax 
-	 GeoPriorApp -? 
-	 GeoPriorApp app ~ ~ 
+	 GeoPrior1DApp -? 
+	 GeoPrior1DApp app ~ ~ 
  Input Arguments 
 	 -?  print help on how to use the application 
 	 app ~ ~  input arguments 
  Description 
- 	 A tool developed for the INTEGRATE project to generate 1D subsurface realizations from user specified inputs.</param.help.text>
+ 	 1D prior generator developed for the INTEGRATE project</param.help.text>
     <unset>
       <param.icon />
       <param.icons />
@@ -57,7 +57,6 @@
       <param.intermediate />
       <param.files.only />
       <param.output />
-      <param.logdir />
       <param.enable.clean.build />
       <param.user.defined.mcr.options />
       <param.target.type />
@@ -76,30 +75,31 @@
       <param.example />
     </unset>
     <fileset.main>
-      <file>C:\Users\jesn\Documents\GitHub\INTEGRATE_WP3_GEUS\GeoPrior v.1.0\GeoPriorApp.m</file>
+      <file>${PROJECT_ROOT}\Matlab v.1.0\GeoPrior1DApp.m</file>
     </fileset.main>
     <fileset.resources />
     <fileset.package />
     <fileset.depfun>
-      <file>C:\Users\jesn\Documents\GitHub\INTEGRATE_WP3_GEUS\GeoPrior v.1.0\data\flj_log.m</file>
-      <file>C:\Users\jesn\Documents\GitHub\INTEGRATE_WP3_GEUS\GeoPrior v.1.0\data\jupiter_cyklo_farve_koder.xls</file>
-      <file>C:\Users\jesn\Documents\GitHub\INTEGRATE_WP3_GEUS\GeoPrior v.1.0\functions\count_category_all.m</file>
-      <file>C:\Users\jesn\Documents\GitHub\INTEGRATE_WP3_GEUS\GeoPrior v.1.0\functions\distribution_stats.m</file>
-      <file>C:\Users\jesn\Documents\GitHub\INTEGRATE_WP3_GEUS\GeoPrior v.1.0\functions\extractPriorInfo.m</file>
-      <file>C:\Users\jesn\Documents\GitHub\INTEGRATE_WP3_GEUS\GeoPrior v.1.0\functions\get_prior_sample.m</file>
-      <file>C:\Users\jesn\Documents\GitHub\INTEGRATE_WP3_GEUS\GeoPrior v.1.0\functions\MergePriorH5s.m</file>
-      <file>C:\Users\jesn\Documents\GitHub\INTEGRATE_WP3_GEUS\GeoPrior v.1.0\functions\prior_lith_reals.m</file>
-      <file>C:\Users\jesn\Documents\GitHub\INTEGRATE_WP3_GEUS\GeoPrior v.1.0\functions\prior_res_reals.m</file>
-      <file>C:\Users\jesn\Documents\GitHub\INTEGRATE_WP3_GEUS\GeoPrior v.1.0\functions\prior_summary.m</file>
-      <file>C:\Users\jesn\Documents\GitHub\INTEGRATE_WP3_GEUS\GeoPrior v.1.0\functions\prior_water_reals.m</file>
-      <file>C:\Users\jesn\Documents\GitHub\INTEGRATE_WP3_GEUS\GeoPrior v.1.0\functions\res_plot_improved.m</file>
-      <file>C:\Users\jesn\Documents\GitHub\INTEGRATE_WP3_GEUS\GeoPrior v.1.0\prior_generator.m</file>
+      <file>${PROJECT_ROOT}\Matlab v.1.0\data\flj_log.m</file>
+      <file>${PROJECT_ROOT}\Matlab v.1.0\data\jupiter_cyklo_farve_koder.xls</file>
+      <file>${PROJECT_ROOT}\Matlab v.1.0\functions\count_category_all.m</file>
+      <file>${PROJECT_ROOT}\Matlab v.1.0\functions\distribution_stats.m</file>
+      <file>${PROJECT_ROOT}\Matlab v.1.0\functions\extractPriorInfo.m</file>
+      <file>${PROJECT_ROOT}\Matlab v.1.0\functions\get_prior_sample.m</file>
+      <file>${PROJECT_ROOT}\Matlab v.1.0\functions\MergePriorH5s.m</file>
+      <file>${PROJECT_ROOT}\Matlab v.1.0\functions\prior_lith_reals.m</file>
+      <file>${PROJECT_ROOT}\Matlab v.1.0\functions\prior_res_reals.m</file>
+      <file>${PROJECT_ROOT}\Matlab v.1.0\functions\prior_summary.m</file>
+      <file>${PROJECT_ROOT}\Matlab v.1.0\functions\prior_water_reals.m</file>
+      <file>${PROJECT_ROOT}\Matlab v.1.0\functions\randsample.m</file>
+      <file>${PROJECT_ROOT}\Matlab v.1.0\functions\res_plot_improved.m</file>
+      <file>${PROJECT_ROOT}\Matlab v.1.0\prior_generator.m</file>
       <file>C:\Users\jesn\Documents\GitHub\mGstat\normpdf.m</file>
     </fileset.depfun>
     <build-deliverables>
-      <file location="${PROJECT_ROOT}\GeoPriorApp\for_testing" name="splash.png" optional="false">C:\Users\jesn\Documents\GitHub\GeoPrior\GeoPriorApp\for_testing\splash.png</file>
-      <file location="${PROJECT_ROOT}\GeoPriorApp\for_testing" name="readme.txt" optional="true">C:\Users\jesn\Documents\GitHub\GeoPrior\GeoPriorApp\for_testing\readme.txt</file>
-      <file location="${PROJECT_ROOT}\GeoPriorApp\for_testing" name="GeoPriorApp.exe" optional="false">C:\Users\jesn\Documents\GitHub\GeoPrior\GeoPriorApp\for_testing\GeoPriorApp.exe</file>
+      <file location="${PROJECT_ROOT}\GeoPrior1DApp\for_testing" name="splash.png" optional="false">C:\Users\jesn\Documents\GitHub\geoprior1d\GeoPrior1DApp\for_testing\splash.png</file>
+      <file location="${PROJECT_ROOT}\GeoPrior1DApp\for_testing" name="readme.txt" optional="true">C:\Users\jesn\Documents\GitHub\geoprior1d\GeoPrior1DApp\for_testing\readme.txt</file>
+      <file location="${PROJECT_ROOT}\GeoPrior1DApp\for_testing" name="GeoPrior1DApp.exe" optional="false">C:\Users\jesn\Documents\GitHub\geoprior1d\GeoPrior1DApp\for_testing\GeoPrior1DApp.exe</file>
     </build-deliverables>
     <workflow />
     <matlab>

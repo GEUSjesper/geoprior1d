@@ -3,7 +3,7 @@
 from prior_generator import prior_generator
 
 # Set parameters
-input_file = "daugaard_matlab.xlsx"
+input_file = "daugaard_standard.xlsx"
 Nreals = 10000
 dmax = 90
 dz = 1

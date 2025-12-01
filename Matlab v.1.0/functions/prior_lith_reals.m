@@ -207,7 +207,7 @@ Ds = cumsum(Ts_all);
 % Fill into m vector
 for i = numel(types_all):-1:1
     m(z <= Ds(i)) = types_all(i);
-    layer_index(z < Ds(i)) = layer_count;
+    layer_index(z <= Ds(i)) = layer_count;
     layer_count = layer_count + 1;
 end
 
