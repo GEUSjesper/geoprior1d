@@ -176,7 +176,7 @@ def prior_lith_reals(info, z, flag_vector):
     # Fill results
     for i in range(len(types_all)-1, -1, -1):
         m[z <= Ds[i]] = types_all[i]
-        layer_index[z < Ds[i]] = layer_count
+        layer_index[z <= Ds[i]] = layer_count
         layer_count += 1
 
     return m, layer_index, flag_vector
