@@ -1,7 +1,7 @@
 # GeoPrior1D
 
 ## **1. Introduction**
-Prior generator developed for the INTEGRATE project
+Prior generator developed for the INTEGRATE project. For full application manual see: *Manual for GeoPrior1D.pdf*
 
 GeoPrior1D is an open-source tool for generating ensembles of one-dimensional (1D) geological and geophysical models that explicitly represent prior models for probabilistic inversion. Instead of relying on analytical prior expressions, GeoPrior1D defines priors through a probabilistic generator that produces random 1D realizations consistent with user-specified geological rules. These rules capture conceptual understanding of subsurface architecture — such as geological successions, layer thickness distributions, lithology–resistivity relationships, and groundwater levels corresponding to different geological settings. The resulting ensemble forms a statistically defined prior model that can be directly used in probabilistic inversion or uncertainty analysis. GeoPrior1D includes a graphical interface for configuration and visualization. It outputs reproducible HDF5 files and is implemented in MATLAB and Python under the MIT license. Together, these elements provide a transparent and flexible framework for linking geological knowledge with quantitative geophysical modeling.
 
@@ -12,9 +12,9 @@ GeoPrior1D is an open-source tool for generating ensembles of one-dimensional (1
 ### **2.1 Executable**
 
 
-Download and install the Windows version of the MATLAB Runtime for R2023a from the following link on the MathWorks website: https://www.mathworks.com/products/compiler/mcr/index.html
+1. Download and install the Windows version of the MATLAB Runtime for R2023a from the following link on the MathWorks website: https://www.mathworks.com/products/compiler/mcr/index.html
 
-Run GeoPrior1DApp.exe in the GeoPriorApp folder
+2. Run GeoPrior1DApp.exe in the GeoPriorApp folder
 
 
 
@@ -121,7 +121,7 @@ Input data related to the subsurface architecture of the prior model.
 that there must be some consistency between the thicknesses chosen in the class data table and the thickness of the units. If not consistent the model might warp the uniform distribution of the class thicknesses severely. 
 *Max thickness*: The maximum thickness of the unit (random thicknesses will be uniformly drawn between the minimum and maximum values). Keep in mind 
 that there must be some consistency between the thicknesses chosen in the class data table and the thicknesses of the unit data table. If not consistent the model might warp the uniform distribution of the class thicknesses severely. 
-*Frequency*: How often the unit should be generated in the prior model: 0 means the unit is in 0% of the generated models, 1 means that the unit is in 100% of the generated models.  
+*Frequency*: How often the unit should be generated in the prior model: 0 means the unit is in 0% of the generated models, 1 means that the unit is in 100% of the generated models. 
 *Repeat*: Whether the same class is allowed to be drawn two times in a row. If 1 the next layer is completely randomly drawn. If 0 the next layer drawn must always be different than the previous layer.  
 *Min Depth*: The minimum depth a unit is allowed to be present. Caution is advised when using this input as miss-matches with other inputs can cause a lot of redraws. 
 
@@ -132,4 +132,28 @@ X: **Prior resistivity visualization**:
 Visualizes the resistivity of the first 100 prior models generated. If water table is part of the prior model it will be represented with small black lines indicating the depth to the water table. The x-axis is the prior realization numbers, and the y-axis is the depth. The colorscale is specially designed for resistivity visualization.
 
 
+## **4. Example**
+For full example including guiding figures see user manual: *Manual for GeoPrior1D.pdf*
+
+1. Locate and run the executable file.
+
+2. This walkthrough will work with three classes. Press the ‘Add class’ button three times.
+
+3. Three rows are now created in the class data table. Now we need to edit them for our purpose. Our example considers sand, clay, and chalk layers. We know that our sand layers can be relatively thick (1-50 m), our clay layers are a bit thinner (1-10 m), and the chalk can be very thick and should be at the bottom of our models. We also want to adjust the color of our layers so that sand is yellow, clay is brown, and chalk is purple. The color assistant will help us see the colors we’ve chosen.
+
+4. We also need to assign resistivities to the three classes. Her we will chosen 100 Ωm for the sand, 20 Ωm for the clay and 200 Ωm for the chalk. To start we set the resistivity uncertainty of all three classes to 0.05. To inspect the resistivity values we have chosen we press the ‘Resistivity histograms’ button.
+
+5. Now we need to use the unit data table to arrange the chosen classes in a stratigraphic order. We will add two units, 1) contain sand and clay layers, this could for example be deposits on a fluvial plain. 2) contains only the chalk layer, this could be the underlying bedrock in the area. We press ‘Add unit’ two times.
+
+6. We enter the classes 1 and 2 (sand and clay) in the first unit. We let the models minimum have 4 layers in this sequence and maximum 8. We want the unit package to be at least 30 meters thick and allow it to become 100 meters thick. In the second unit we enter just 3 (chalk) as this is the underlying geology. When you are working with the last unit in the sequences the only relevant property is the classes appearing in it, as it will always fill our the remainder of the sequence.
+
+7. We have now input enough information to generate an ensemble of prior realizations. To see how we are doing we press the ‘Generate 100 prior samples’ button.
+
+8. We are happy we the settings we’ve chosen and therefore want to save them for later. We press the ‘Save as…’ button and save the file as ‘prior_example’. You will see the working filename change. If we at a later point want to edit this prior setup, we simple open the excel file using ‘Open..’ button.
+
+9. Since we’ve decided that we are happy with the setup we want to generate more realizations. To do this enter the desired numbers of realizations in the ‘No. of models’ field. Then press the ‘Generate N prior samples’ button. A progress dialog will open to show the time remaining. Once finished a pop-up will show you have successful the operation was. 
+
+10. Lastly, we want to inspect the prior generated in more detail. To do this we can utilize the ‘Prior summary’ button. This will open a new window with advanced statistics we can study about the prior.
+
+11. Congratulations you have now generated your first prior file prior_example_N1000000_dmax90_XXXXXX_XXXX.h5. Find it in your workfolder and use the brand-new look-up table in your next probabilistic inversion!
 
