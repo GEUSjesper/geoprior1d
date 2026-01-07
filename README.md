@@ -35,6 +35,8 @@ Install from PyPI:
 pip install geoprior1d
 ```
 
+For more information on Python module see README.md in *geoprior1d*
+
 
 ## **3. App UI walkthrough**
 
