@@ -1,10 +1,12 @@
 # GeoPrior1D
 
 ## **1. Introduction**
-Prior generator developed for the INTEGRATE project. For full application manual see: *Manual for GeoPrior1D.pdf*
+GepoPrior1D was developed for the INTEGRATE (Informative Mapping of Construction Aggregate Resources Through Statistical data Analysis) project, which aims at improving the near surface geophysical mapping capabilities of currently applied methods in search for aggregate resources (for more see https://integrate.nu/).  
 
-GeoPrior1D is an open-source tool for generating ensembles of one-dimensional (1D) geological and geophysical models that explicitly represent prior models for probabilistic inversion. Instead of relying on analytical prior expressions, GeoPrior1D defines priors through a probabilistic generator that produces random 1D realizations consistent with user-specified geological rules. These rules capture conceptual understanding of subsurface architecture — such as geological successions, layer thickness distributions, lithology–resistivity relationships, and groundwater levels corresponding to different geological settings. The resulting ensemble forms a statistically defined prior model that can be directly used in probabilistic inversion or uncertainty analysis. GeoPrior1D includes a graphical interface for configuration and visualization. It outputs reproducible HDF5 files and is implemented in MATLAB and Python under the MIT license. Together, these elements provide a transparent and flexible framework for linking geological knowledge with quantitative geophysical modeling.
+### **1.1 Intended use**
+GeoPrior1D is an open-source tool for generating ensembles of one-dimensional (1D) geological and geophysical models that explicitly represent prior models for probabilistic inversion. It is a probabilistic prior model generator that produces random 1D realizations consistent with user-specified geological rules. These rules capture conceptual understanding of subsurface architecture — such as geological successions, layer thickness distributions, lithology–resistivity relationships, and groundwater levels corresponding to different geological settings. The resulting ensemble forms a statistically defined prior model that can be directly used in probabilistic inversion or uncertainty analysis. GeoPrior1D includes a graphical interface that lets the user interact with the model setup for configuration and visualization. It outputs reproducible HDF5 files and is implemented in MATLAB and Python under the MIT license. The output can be used as input for other inversion software or codes.
 
+For full application manual see: *Manual for GeoPrior1D.pdf*
 
 
 ## **2. GeoPrior1DApp Installation guides**
@@ -14,15 +16,15 @@ GeoPrior1D is an open-source tool for generating ensembles of one-dimensional (1
 
 1. Download and install the Windows version of the MATLAB Runtime for R2023a from the following link on the MathWorks website: https://www.mathworks.com/products/compiler/mcr/index.html
 
-2. Run GeoPrior1DApp.exe in the GeoPriorApp folder
+2. Run *GeoPrior1DApp.exe* in the *GeoPriorApp* folder.
 
 
 
 ### **2.2 MATLAB**
 
-Prerequisites:	MATLAB version 2023a or newer 
+Prerequisites:	MATLAB version 2023a or newer. 
 
-Open and run GeoPrior1DApp.m in the Matlab 1.0 folder
+Open and run *GeoPrior1DApp.m* in the *Matlab 1.0* folder.
 
 
 
@@ -35,7 +37,7 @@ Install from PyPI:
 pip install geoprior1d
 ```
 
-For more information on Python module see README.md in *geoprior1d*
+For more information on Python module see *README.md* in *geoprior1d*.
 
 
 ## **3. App UI walkthrough**
@@ -143,7 +145,7 @@ For full example including guiding figures see user manual: *Manual for GeoPrior
 
 3. Three rows are now created in the class data table. Now we need to edit them for our purpose. Our example considers sand, clay, and chalk layers. We know that our sand layers can be relatively thick (1-50 m), our clay layers are a bit thinner (1-10 m), and the chalk can be very thick and should be at the bottom of our models. We also want to adjust the color of our layers so that sand is yellow, clay is brown, and chalk is purple. The color assistant will help us see the colors we’ve chosen.
 
-4. We also need to assign resistivities to the three classes. Her we will chosen 100 Ωm for the sand, 20 Ωm for the clay and 200 Ωm for the chalk. To start we set the resistivity uncertainty of all three classes to 0.05. To inspect the resistivity values we have chosen we press the ‘Resistivity histograms’ button.
+4. We also need to assign resistivities to the three classes. Her we will chosen 100 Ωm for the sand, 20 Ωm for the clay and 200 Ωm for the chalk. To start we set the resistivity uncertainty of all three classes to 2. To inspect the resistivity values we have chosen we press the ‘Resistivity histograms’ button.
 
 5. Now we need to use the unit data table to arrange the chosen classes in a stratigraphic order. We will add two units, 1) contain sand and clay layers, this could for example be deposits on a fluvial plain. 2) contains only the chalk layer, this could be the underlying bedrock in the area. We press ‘Add unit’ two times.
 
