@@ -1,12 +1,19 @@
 # GeoPrior1D
 
 ## **1. Introduction**
-GepoPrior1D was developed for the INTEGRATE (Informative Mapping of Construction Aggregate Resources Through Statistical data Analysis) project, which aims at improving the near surface geophysical mapping capabilities of currently applied methods in search for aggregate resources (for more see https://integrate.nu/).  
+GeoPrior1D was developed for the INTEGRATE (Informative Mapping of Construction Aggregate Resources Through Statistical data Analysis) project, which aims at improving the near surface geophysical mapping capabilities of currently applied methods in search for aggregate resources (for more see https://integrate.nu/).  
 
 ### **1.1 Intended use**
 GeoPrior1D is an open-source tool for generating ensembles of one-dimensional (1D) geological and geophysical models that explicitly represent prior models for probabilistic inversion. It is a probabilistic prior model generator that produces random 1D realizations consistent with user-specified geological rules. These rules capture conceptual understanding of subsurface architecture — such as geological successions, layer thickness distributions, lithology–resistivity relationships, and groundwater levels corresponding to different geological settings. The resulting ensemble forms a statistically defined prior model that can be directly used in probabilistic inversion or uncertainty analysis. GeoPrior1D includes a graphical interface that lets the user interact with the model setup for configuration and visualization. It outputs reproducible HDF5 files and is implemented in MATLAB and Python under the MIT license. The output can be used as input for other inversion software or codes.
 
 For full application manual see: *Manual for GeoPrior1D.pdf*
+
+Publications that has employed earlier versions of the software:
+
+*Nørgaard, J., Hansen, T. M., Bastani, M., & Persson, L. (2025). Probabilistic Inversion of Towed TEM Data to Map Hazardous Quick Clays. NSG 2025: 1st Conference on Geohazards Assessment and Risk Mitigation Conference, 2025(1), 1–5. https://doi.org/10.3997/2214-4609.202520094*
+
+*Høyer, A., Nørgaard, J., Madsen, R. B., Møller, I., Svennevig, K., & Hansen, T. M. (2025). Probabilistic Inversion of tTEM for Improved Mapping of Landslide-Associated Glaciotectonic Structures. NSG 2025: 1st Conference on Geohazards Assessment and Risk Mitigation Conference, 2025(1), 1–5. https://doi.org/10.3997/2214-4609.202520187*
+
 
 
 ## **2. GeoPrior1DApp Installation guides**
