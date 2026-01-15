@@ -8,7 +8,7 @@ GeoPrior1D is an open-source tool for generating ensembles of one-dimensional (1
 
 For full application manual see: *Manual for GeoPrior1D.pdf*
 
-Publications that has employed earlier versions of the software:
+Publications that has employed earlier versions of the codes:
 
 *Nørgaard, J., Hansen, T. M., Bastani, M., & Persson, L. (2025). Probabilistic Inversion of Towed TEM Data to Map Hazardous Quick Clays. NSG 2025: 1st Conference on Geohazards Assessment and Risk Mitigation Conference, 2025(1), 1–5. https://doi.org/10.3997/2214-4609.202520094*
 
@@ -23,7 +23,7 @@ Publications that has employed earlier versions of the software:
 
 1. Download and install the Windows version of the MATLAB Runtime for R2023a from the following link on the MathWorks website: https://www.mathworks.com/products/compiler/mcr/index.html
 
-2. Run *GeoPrior1DApp.exe* in the *GeoPriorApp* folder.
+2. Run *GeoPrior1DApp.exe* in the *matlab/GeoPriorApp* folder.
 
 
 
@@ -31,7 +31,7 @@ Publications that has employed earlier versions of the software:
 
 Prerequisites:	MATLAB version 2023a or newer. 
 
-Open and run *GeoPrior1DApp.m* in the *Matlab 1.0* folder.
+Open and run *GeoPrior1DApp.m* in the *matlab/Matlab 1.0* folder.
 
 
 
@@ -44,7 +44,7 @@ Install from PyPI:
 pip install geoprior1d
 ```
 
-For more information on Python module see *README.md* in *geoprior1d*.
+For more information on Python module see *README.md* inside *python/geoprior1d*.
 
 
 ## **3. App UI walkthrough**
