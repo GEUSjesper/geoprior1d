@@ -97,7 +97,7 @@ end
 % Check if min unit depth is fullfilled
 checksum_sections = 0;
 for i = 2:N
-    if sum(thick_sections(1:i-1)) < info.Sections.min_depth(i)% && N_layers(i) > 0
+    if sum(thick_sections(1:i-1)) < info.Sections.min_depth(i) && thick_sections(i) ~= 0
         checksum_sections = 1;
         break
     end
@@ -176,7 +176,7 @@ while checksum_layers > 0 || checksum_sections > 0
     % Check if min unit depth is fullfilled
     checksum_sections = 0;
     for i = 2:N
-        if sum(thick_sections(1:i-1)) < info.Sections.min_depth(i)% && N_layers(i) > 0
+        if sum(thick_sections(1:i-1)) < info.Sections.min_depth(i) && thick_sections(i) ~= 0
             checksum_sections = 1;
             break
         end
