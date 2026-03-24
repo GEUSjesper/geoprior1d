@@ -27,7 +27,7 @@ try:
         Nreals=n_realizations,
         dmax=depth_max,
         dz=depth_step,
-        doPlot=0
+        doPlot=1
     )
 
     print("✓ SUCCESS!")

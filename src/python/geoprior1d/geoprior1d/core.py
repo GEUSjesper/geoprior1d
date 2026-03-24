@@ -111,28 +111,41 @@ def save_prior_to_hdf5(output_file, ms, ns, ws, info, cmaps, z_vec, dmax, dz,
             dset_M3.attrs['name'] = 'Waterlevel'
             dset_M3.attrs['x'] = [0]
 
-        # Read Excel sheets into DataFrames
-        T_geo1 = pd.read_excel(input_data, sheet_name="Geology1")
-        headers_geo1 = T_geo1.columns.astype(str).tolist()
-        contents_geo1 = T_geo1.astype(str).values.flatten().tolist()
-
-        T_geo2 = pd.read_excel(input_data, sheet_name="Geology2")
-        headers_geo2 = T_geo2.columns.astype(str).tolist()
-        contents_geo2 = T_geo2.astype(str).values.flatten().tolist()
-
-        T_res = pd.read_excel(input_data, sheet_name="Resistivity")
-        headers_res = T_res.columns.astype(str).tolist()
-        contents_res = T_res.astype(str).values.flatten().tolist()
-
-        # Open (or create) HDF5 file and write attributes
-        with h5py.File(name, "a") as f:
+        ext = os.path.splitext(input_data)[1].lower()
+        
+        if ext in [".xlsx", ".xls"]:
+            # Read Excel sheets into DataFrames
+            T_geo1 = pd.read_excel(input_data, sheet_name="Geology1")
+            headers_geo1 = T_geo1.columns.astype(str).tolist()
+            contents_geo1 = T_geo1.astype(str).values.flatten().tolist()
+    
+            T_geo2 = pd.read_excel(input_data, sheet_name="Geology2")
+            headers_geo2 = T_geo2.columns.astype(str).tolist()
+            contents_geo2 = T_geo2.astype(str).values.flatten().tolist()
+    
+            T_res = pd.read_excel(input_data, sheet_name="Resistivity")
+            headers_res = T_res.columns.astype(str).tolist()
+            contents_res = T_res.astype(str).values.flatten().tolist()
+    
+            # Open (or create) HDF5 file and write attributes
+            with h5py.File(name, "a") as f:
+                f.attrs["Creation date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                f.attrs["Class headers"] = headers_geo1
+                f.attrs["Class table"] = contents_geo1
+                f.attrs["Unit headers"] = headers_geo2
+                f.attrs["Unit table"] = contents_geo2
+                f.attrs["Resistivity headers"] = headers_res
+                f.attrs["Resistivity table"] = contents_res
+                
+        elif ext == ".txt":
+            # Can work with txt file, but not intended use
             f.attrs["Creation date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            f.attrs["Class headers"] = headers_geo1
-            f.attrs["Class table"] = contents_geo1
-            f.attrs["Unit headers"] = headers_geo2
-            f.attrs["Unit table"] = contents_geo2
-            f.attrs["Resistivity headers"] = headers_res
-            f.attrs["Resistivity table"] = contents_res
+            f.attrs["Class headers"] = "Created from txt file."
+            f.attrs["Class table"] = "Created from txt file."
+            f.attrs["Unit headers"] = "Created from txt file."
+            f.attrs["Unit table"] = "Created from txt file."
+            f.attrs["Resistivity headers"] = "Created from txt file."
+            f.attrs["Resistivity table"] = "Created from txt file."
 
     return name
 

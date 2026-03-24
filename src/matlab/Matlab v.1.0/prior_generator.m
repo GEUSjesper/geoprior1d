@@ -76,18 +76,10 @@ z_vec = dz:dz:dmax;
 
 % Figure out the correct output name
 if isstruct(input)
-    if endsWith(info.filename, '.xlsx')
-        info.filename = info.filename(1:end-5);
-    elseif endsWith(info.filename, '.xls')
-        info.filename = info.filename(1:end-4);
-    end
+    [~, info.filename, ext] = fileparts(info.filename);
     name = sprintf('%s_N%d_dmax%d_%s.h5', info.filename, Nreals, dmax, datestr(now,'yyyymmdd_HHMM'));
 elseif ischar(input)
-    if endsWith(input, '.xlsx')
-        input = input(1:end-5);
-    elseif endsWith(input, '.xls')
-        input = input(1:end-4);
-    end
+    [~, input, ext] = fileparts(input);
     name = sprintf('%s_N%d_dmax%d_%s.h5', input, Nreals, dmax, datestr(now,'yyyymmdd_HHMM'));
 end
 
@@ -96,7 +88,6 @@ end
 try;delete(name); end
 % Resistivity
 h5create(name, '/M1', size(ns'), 'Datatype', 'single')
-% h5writeatt(name, '/', 'Creation date', date);
 h5write(name, '/M1', ns')
 h5writeatt(name, '/M1', 'is_discrete', 0);
 h5writeatt(name, '/M1', 'name', 'Resistivity');
@@ -129,25 +120,29 @@ end
 
 
 % Write prior settings in hdf5 file
-T_geo1 = readtable([info.filename, '.xlsx'], 'Sheet', 'Geology1');
-headers_geo1  = string(T_geo1.Properties.VariableNames);
-contents_geo1 = string(table2cell(T_geo1));
-T_geo2 = readtable([info.filename, '.xlsx'], 'Sheet', 'Geology2');
-headers_geo2  = string(T_geo2.Properties.VariableNames);
-contents_geo2 = string(table2cell(T_geo2));
-T_res = readtable([info.filename, '.xlsx'], 'Sheet', 'Resistivity');
-headers_res  = string(T_res.Properties.VariableNames);
-contents_res = string(table2cell(T_res));
-
-
 h5writeatt(name, '/', 'Creation date', date);
-h5writeatt(name, '/', 'Class headers', headers_geo1);
-h5writeatt(name, '/', 'Class table', contents_geo1);
-h5writeatt(name, '/', 'Unit headers', headers_geo2);
-h5writeatt(name, '/', 'Unit table', contents_geo2);
-h5writeatt(name, '/', 'Resistivity headers', headers_res);
-h5writeatt(name, '/', 'Resistivity table', contents_res);
+if any(strcmp(ext,[".xlsx", ".xls"]))
+    T_geo1 = readtable([info.filename, '.xlsx'], 'Sheet', 'Geology1');
+    headers_geo1  = string(T_geo1.Properties.VariableNames);
+    contents_geo1 = string(table2cell(T_geo1));
+    T_geo2 = readtable([info.filename, '.xlsx'], 'Sheet', 'Geology2');
+    headers_geo2  = string(T_geo2.Properties.VariableNames);
+    contents_geo2 = string(table2cell(T_geo2));
+    T_res = readtable([info.filename, '.xlsx'], 'Sheet', 'Resistivity');
+    headers_res  = string(T_res.Properties.VariableNames);
+    contents_res = string(table2cell(T_res));
+    
 
+    h5writeatt(name, '/', 'Class headers', headers_geo1);
+    h5writeatt(name, '/', 'Class table', contents_geo1);
+    h5writeatt(name, '/', 'Unit headers', headers_geo2);
+    h5writeatt(name, '/', 'Unit table', contents_geo2);
+    h5writeatt(name, '/', 'Resistivity headers', headers_res);
+    h5writeatt(name, '/', 'Resistivity table', contents_res);
+elseif strcmp(ext, ".txt")
+    lines = string(readlines([info.filename,'.txt']));
+    h5writeatt(name, '/', 'Tables', lines);
+end
 %% Plot figures
 if doPlot == 1
 

@@ -15,6 +15,7 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
         dzLabel                 matlab.ui.control.Label
         dzEditField             matlab.ui.control.NumericEditField
         ImportButton            matlab.ui.control.Button
+        ImportTxtButton         matlab.ui.control.Button
         ResistivityButton       matlab.ui.control.Button
         GeneratePriorsButton    matlab.ui.control.Button
         GenerateNPriorsButton   matlab.ui.control.Button
@@ -28,6 +29,7 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
         CloseButton             matlab.ui.control.Button
         ClassDataTable          matlab.ui.control.Table
         ExportButton            matlab.ui.control.Button
+        ExportTxtButton         matlab.ui.control.Button
         UnitDataTable           matlab.ui.control.Table
         WaterTableCheckBox      matlab.ui.control.CheckBox
         WaterTableLabel         matlab.ui.control.Label
@@ -408,7 +410,7 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
         
         %% Function to import prior settings from excel sheet
         function ImportData(app, ~, ~)
-            [file, path] = uigetfile('*.xlsx', 'Select an Excel File');
+            [file, path] = uigetfile({'*.xlsx;*.txt','Excel or Text Files (*.xlsx, *.txt)'}, 'Select a file');
             if isequal(file, 0)
                 return;
             end
@@ -420,38 +422,60 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
             app.FilenameTextArea.Value = append(filenameOnly, ext);
 
 
-            % Open setting with correct formatting
-            lithData = readcell(filename, 'Sheet', 'Geology1'); lithData(1, :) = [];
-            resData = readcell(filename, 'Sheet', 'Resistivity'); resData(1, :) = [];
-            classData = [lithData(:,1:3), resData(:,2:3), lithData(:,4)];
-            if any(strcmp('Water table', sheetnames(filename)))
-                waterData = readcell(filename, 'Sheet', 'Water table'); waterData(1, :) = [];
-                app.WaterTableCheckBox.Value = 1;
-                app.WaterTable(app);
-                app.WaterMinField.Value = cell2mat(waterData(1));
-                app.WaterMaxField.Value = cell2mat(waterData(2));
-                classData = [classData,resData(:,4:5)];
-            else
-                app.WaterTableCheckBox.Value = 0;
-                app.WaterTableLabel.Visible = 'off';
-                app.WaterMinField.Visible = 'off';
-                app.WaterMaxField.Visible = 'off';
-            end
-            app.ClassData = classData;
-            app.ClassDataTable.Data = classData;
-            unitData = readcell(filename, 'Sheet', 'Geology2'); unitData(1, :) = [];
-
-
-            % Recover data, if priors excel file is from version 0.2
-            if ismissing(unitData{end,2})
-                unitData{end,2} = '1';
-            end
-            for i = 3:size(unitData,2)
-                if ismissing(unitData{end,i})
-                    unitData{end,i} = [];
+            if any(strcmp(ext, {'.xlsx', '.xls'}))  
+                % Open setting with correct formatting
+                lithData = readcell(filename, 'Sheet', 'Geology1'); lithData(1, :) = [];
+                resData = readcell(filename, 'Sheet', 'Resistivity'); resData(1, :) = [];
+                classData = [lithData(:,1:3), resData(:,2:3), lithData(:,4)];
+                if any(strcmp('Water table', sheetnames(filename)))
+                    waterData = readcell(filename, 'Sheet', 'Water table'); waterData(1, :) = [];
+                    app.WaterTableCheckBox.Value = 1;
+                    app.WaterTable(app);
+                    app.WaterMinField.Value = cell2mat(waterData(1));
+                    app.WaterMaxField.Value = cell2mat(waterData(2));
+                    classData = [classData,resData(:,4:5)];
+                else
+                    app.WaterTableCheckBox.Value = 0;
+                    app.WaterTableLabel.Visible = 'off';
+                    app.WaterMinField.Visible = 'off';
+                    app.WaterMaxField.Visible = 'off';
                 end
+                
+                unitData = readcell(filename, 'Sheet', 'Geology2'); unitData(1, :) = [];
+    
+    
+                % Recover data, if priors excel file is from version 0.2
+                if ismissing(unitData{end,2})
+                    unitData{end,2} = '1';
+                end
+                for i = 3:size(unitData,2)
+                    if ismissing(unitData{end,i})
+                        unitData{end,i} = [];
+                    end
+                end
+                unitData(1:end, 2) = cellfun(@(x) char(string(x)), unitData(1:end, 2), 'UniformOutput', false);
+            
+
+            elseif strcmp(ext, '.txt')
+                [classData, unitData, waterData] = readTxt(filename);
+                app.ClassData = classData;
+                app.UnitData = unitData;
+                if ~isempty(waterData)
+                    app.WaterTableCheckBox.Value = 1;
+                    app.WaterTable(app);
+                    app.WaterMinField.Value = waterData(1);
+                    app.WaterMaxField.Value = waterData(2);
+                    app.WaterTableLabel.Visible = 'on';
+                    app.WaterMinField.Visible = 'on';
+                    app.WaterMaxField.Visible = 'on';
+                else
+                    app.WaterTableCheckBox.Value = 0;
+                    app.WaterTableLabel.Visible = 'off';
+                    app.WaterMinField.Visible = 'off';
+                    app.WaterMaxField.Visible = 'off';
+                end
+
             end
-            unitData(1:end, 2) = cellfun(@(x) char(string(x)), unitData(1:end, 2), 'UniformOutput', false);
 
 
             % Add columns of 0, if priors excel file is from version 0.2
@@ -460,7 +484,10 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
             end
             app.UnitData = unitData;
             app.UnitDataTable.Data = unitData;
+            app.ClassData = classData;
+            app.ClassDataTable.Data = classData;
 
+            
             % Update most recent action
             prevText = app.MessageLabel.Text;
             app.MessageLabel.Text = {prevText{end}, sprintf('Settings imported from %s.', file)};
@@ -470,7 +497,7 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
         %% Function to export prior settings to excel sheet
         function ExportData(app, ~, ~)
 
-            [file, path] = uiputfile('*.xlsx', 'Save Excel File As', string(app.FilenameTextArea.Value));
+            [file, path] = uiputfile({'*.xlsx;*.txt','Excel or Text Files (*.xlsx, *.txt)'}, 'Save File As', string(app.FilenameTextArea.Value));
             if isequal(file, 0)
                 return;
             end
@@ -486,7 +513,7 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
             [~, filenameOnly, ext] = fileparts(filename);
             app.FilenameTextArea.Value = append(filenameOnly, ext);
 
-            
+           
             % Save settings with the correct formatting
             Geology1 = cell2table(app.ClassData(:,[1,2,3,6]),'VariableNames',{'Class', 'Min thickness', 'Max thickness', 'RGB color'});
             Geology2 = cell2table(app.UnitData,'VariableNames',{'Classes','Probabilities','Min no of layers','Max no of layers','Min unit thickness','Max unit thickness','Frequency','Repeat','Min depth'});
@@ -495,17 +522,77 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
             else
                 Resistivity = cell2table(app.ClassData(:,[1,4,5,7,8]),'VariableNames',{'Class', 'Resistivity', 'Resistivity uncertainty', 'Unsaturated resistivity', 'Unsaturated resistivity uncertainty'});
             end
-            writetable(Geology1,filename, 'Sheet', 'Geology1')
-            writetable(Geology2,filename, 'Sheet', 'Geology2')
-            writetable(Resistivity, filename, 'Sheet', 'Resistivity')
-            if app.WaterTableCheckBox.Value
-                WaterTable = table(app.WaterMinField.Value,app.WaterMaxField.Value, 'VariableNames', {'Min depth to water table','Max depth to water table'});
-                writetable(WaterTable,filename,'Sheet','Water table')
+
+
+            if any(strcmp(ext, {'.xlsx', '.xls'}))    
+                writetable(Geology1,filename, 'Sheet', 'Geology1')
+                writetable(Geology2,filename, 'Sheet', 'Geology2')
+                writetable(Resistivity, filename, 'Sheet', 'Resistivity')
+                if app.WaterTableCheckBox.Value
+                    WaterTable = table(app.WaterMinField.Value,app.WaterMaxField.Value, 'VariableNames', {'Min depth to water table','Max depth to water table'});
+                    writetable(WaterTable,filename,'Sheet','Water table')
+                end
+
+
+            elseif strcmp(ext, '.txt')
+
+                fid = fopen(filename, 'w');
+                Geo1Res_combined = [Geology1.Properties.VariableNames, Resistivity.Properties.VariableNames(2:end)];
+
+                
+                % Structure tables inside text file
+                fprintf(fid, 'Geology1-Resistivity\n');
+                if app.WaterTableCheckBox.Value
+                    fprintf(fid, '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n', Geo1Res_combined{:});
+                    for i = 1:size(app.ClassData, 1)
+                        fprintf(fid, '%s\t%g\t%g\t%g\t%g\t%s\t%g\t%g\n', ...
+                            string(app.ClassData{i,1}), ...
+                            app.ClassData{i,2}, ...
+                            app.ClassData{i,3}, ...
+                            app.ClassData{i,4}, ...
+                            app.ClassData{i,5}, ...
+                            string(app.ClassData{i,6}), ...
+                            app.ClassData{i,7}, ...
+                            app.ClassData{i,8});
+                    end
+                else
+                    fprintf(fid, '%s\t%s\t%s\t%s\t%s\t%s\n', Geo1Res_combined{:});
+                    for i = 1:size(app.ClassData, 1)
+                        fprintf(fid, '%s\t%g\t%g\t%g\t%g\t%s\n', ...
+                            string(app.ClassData{i,1}), ...
+                            app.ClassData{i,2}, ...
+                            app.ClassData{i,3}, ...
+                            app.ClassData{i,4}, ...
+                            app.ClassData{i,5}, ...
+                            string(app.ClassData{i,6}));
+                    end
+                end
+            
+                
+                fprintf(fid, '\nGeology2\n');
+                fprintf(fid, '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n', Geology2.Properties.VariableNames{:});
+                for i = 1:size(Geology2,1)
+                    fprintf(fid, '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n', ...
+                        string(app.UnitData{i,1}), string(app.UnitData{i,2}), string(app.UnitData{i,3}), ...
+                        string(app.UnitData{i,4}), string(app.UnitData{i,5}), string(app.UnitData{i,6}), ...
+                        string(app.UnitData{i,7}), string(app.UnitData{i,8}), string(app.UnitData{i,9}));
+                end
+
+
+                if app.WaterTableCheckBox.Value
+                    fprintf(fid, '\nWaterTable\n');
+                    fprintf(fid, '%s\t%s\n', 'Min', 'Max');
+                    fprintf(fid, '%g\t%g\n', app.WaterMinField.Value, app.WaterMaxField.Value);
+                end
+
+                fclose(fid);
+
             end
 
             % Update most recent action
             prevText = app.MessageLabel.Text;
             app.MessageLabel.Text = {prevText{end}, sprintf('Settings saved to %s.', file)};
+
         end
 
         
