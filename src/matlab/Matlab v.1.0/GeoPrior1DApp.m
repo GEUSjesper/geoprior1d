@@ -1,3 +1,4 @@
+%% 
 classdef GeoPrior1DApp < matlab.apps.AppBase
     
     % Prior generator app was developed as a part of the INTEGRATE project
