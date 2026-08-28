@@ -22,10 +22,11 @@ for i = 1:max(layer_index)
 
         elseif method1 == 3
             resistivities = info.Resistivity.res1{j};
-            cumprobs = info.Resistivity.res2{j};
+            probs = info.Resistivity.res2{j};
+            probs_norm = probs./sum(probs);
+            cumprobs = cumsum(probs_norm);
             k = find(cumprobs >= rand, 1, 'first');
-            n(m == j & layer_index == i) =  10.^((resistivities(k+1) - resistivities(k))*rand + resistivities(k));
-            
+            n_unsat(m == j & layer_index == i) =  10.^((resistivities(k+1) - resistivities(k))*rand + resistivities(k));
         end
 
 
@@ -36,7 +37,7 @@ for i = 1:max(layer_index)
             if method2 == 1
                 % Due to the definition of log-gaussian resistivity uncertainty
                 res_unc = log10(info.Resistivity.res4{j}) / 3;
-                n_unsat(m == j & layer_index == i) =  10.^(log10(info.Resistivity.res3{j}) + res_unc * randn);
+                n_unsat(m == j & layer_index == i) =  10.^(log10(info.Resistivity.res1{j}) + res_unc * randn);
 
             elseif method2 == 2
                 n_unsat(m == j & layer_index == i) =  (info.Resistivity.res4{j} - info.Resistivity.res3{j}) * rand + info.Resistivity.res3{j};

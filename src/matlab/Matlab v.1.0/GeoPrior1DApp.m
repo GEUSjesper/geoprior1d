@@ -56,18 +56,10 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
 
     methods (Access = private)
         
-        %% Function the displays the resistivity histograms for the user to inspect
+        %% Function that displays the resistivity histograms for the user to inspect
         function ResistivityPushed(app, ~, ~)
             types = app.ClassData(:,1);
-            res_means = cell2mat(app.ClassData(:,4));
-            res_factor = cell2mat(app.ClassData(:,5));
-            % Note on resistivity uncertainty:
-            % What is inputted in the App is the factor that matches 3
-            % standard deviations in the logarithmic space. Resistivity to
-            % reponse signal has exponential relation, and 3 standard
-            % deviations covers nearly all possible values (99.7%).
-            res_unc = log10(res_factor)/3;
-
+            
 
             % Close figure if it already exists to avoid unintended errors
             fig = findobj('Type', 'figure', 'Tag', 'fig_res');
@@ -77,46 +69,125 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
 
 
             % Create new figure
-            figure('Tag','fig_res', 'Name', 'Resistivity distributions', 'NumberTitle', 'off'); clf; tl = tiledlayout('flow','TileSpacing','compact'); title(tl,'Resistivity distributions','FontSize',20)
+            % figure('Tag','fig_res', 'Name', 'Resistivity distributions', 'NumberTitle', 'off'); clf; tl = tiledlayout('flow','TileSpacing','compact'); title(tl,'Resistivity distributions','FontSize',20)
+            figure('Tag','fig_res', 'Name', 'Resistivity distributions', 'NumberTitle', 'off'); clf; tl = tiledlayout(2,3,'TileSpacing','none');
+
             xs_res=-1:0.01:3.41;
             y_res_total = zeros(size(xs_res));
             for i = 1:numel(types)
+
                 nexttile
-                % Calculate what the gaussian curve looks like and plot
-                y1_res = normpdf(xs_res, log10(res_means(i)) ,res_unc(i));
+                res1 = str2double(split(app.ClassData{i, 4}, ','));
+                res2 = str2double(split(app.ClassData{i, 5}, ','));
+                method = app.ClassData{i, 6};
+
+                switch method
+                    
+                    case  'log-gaussian'
+                        % Note on resistivity uncertainty:
+                        % What is inputted in the App is the factor that matches 3
+                        % standard deviations in the logarithmic space. Resistivity to
+                        % reponse signal has exponential relation, and 3 standard
+                        % deviations covers nearly all possible values (99.7%).
+                        res_unc = log10(res2)/3;
+
+                        % Calculate what the gaussian curve looks like and plot
+                        y1_res = normpdf(xs_res, log10(res1), res_unc);
+                        
+                   case 'uniform'
+                        res_min = res1;
+                        res_max = res2;
+
+                        y1_res = ones(size(xs_res));
+                        y1_res(10.^xs_res < res_min) = 0;
+                        y1_res(10.^xs_res > res_max) = 0;        
+                
+                   case 'custom'
+                        ress = res1;
+                        res_prob = res2;
+
+                        y1_res = interp1(ress, res_prob, 10.^xs_res, 'linear', 0);
+                end   
                 res_plot_improved(10.^xs_res, y1_res)
                 y_res_total = y_res_total + y1_res;
-                
+ 
 
                 % Draw unsaturated resistivity with a red line if relevant
-                if size(app.ClassData,2) > 7
-                    res_means_unsat = cell2mat(app.ClassData(i,7));
-                    res_factor_unsat = cell2mat(app.ClassData(i,8));
-                    res_unc_unsat = log10(res_factor_unsat)/3;
-                    y2_res=normpdf(xs_res,log10(res_means_unsat), res_unc_unsat);
+                if size(app.ClassData, 2) > 8
+                    res3 = str2double(split(app.ClassData{i, 8}, ','));
+                    res4 = str2double(split(app.ClassData{i, 9}, ','));
+                    method2 = app.ClassData{i, 10};
+
+                    switch method2
+                        case 'log-gaussian'
+                            res_unc = log10(res4)/3;
+                            y2_res=normpdf(xs_res, log10(res3), res_unc);
+
+                        case 'uniform'
+                            res_min = res3;
+                            res_max = res4;
+                            y2_res = ones(size(xs_res));
+                            y2_res(10.^xs_res < res_min) = 0;
+                            y2_res(10.^xs_res > res_max) = 0;
+                            
+                        case 'custom'
+                            ress = res3;
+                            res_prob = res4;
+    
+                            y2_res = interp1(ress, res_prob, 10.^xs_res, 'linear', 0);
+                    end
                     res_plot_improved(10.^xs_res, y2_res)
                     plot(10.^xs_res, y2_res, '-r', 'LineWidth', 1.5)
-                    y_res_total = y_res_total + y2_res;
+                    y_res_total = y_res_total + y2_res;          
                 end
 
-                
                 % Plot black line to ensure curve visibile
                 plot(10.^xs_res, y1_res, '-k', 'LineWidth', 1.5)
-                title(types(i), 'Interpreter', 'none')
+                % title(types(i), 'Interpreter', 'none')
                 set(gca, 'XTick', [1 10 100 1000], 'XTickLabels', num2str([1 10 100 1000]'))
                 set(gca, 'XLim', [1 2600])
+
+
+                set(gca, 'YTick', [])
+                box on
             end
+
+
             c = colorbar;
             c.Layout.Tile = 'south';
             ylabel(c, 'Resistivity [\Omegam]')
             set(c, 'Ticks', [0.1 1 3 10 30 100 300 1000 3000], 'TickLabels', num2str([0.1 1 3 10 30 100 300 1000 3000]'))
             
-
+            
             nexttile
-            res_plot_improved(10.^xs_res, y_res_total)
-            title('Total')
+            for i = 1:numel(types)
+                res1 = str2double(split(app.ClassData{i, 4}, ','));
+                res2 = str2double(split(app.ClassData{i, 5}, ','));
+                color = str2double(split(app.ClassData{i, 7}, ','));
+
+                % Note on resistivity uncertainty:
+                % What is inputted in the App is the factor that matches 3
+                % standard deviations in the logarithmic space. Resistivity to
+                % reponse signal has exponential relation, and 3 standard
+                % deviations covers nearly all possible values (99.7%).
+                res_unc = log10(res2)/3;
+
+                % Calculate what the gaussian curve looks like and plot
+                y1_res = normpdf(xs_res, log10(res1), res_unc);
+                hold on
+                plot(10.^xs_res, y1_res, '-', 'Color', color'./255, 'LineWidth', 2)
+            end
             set(gca, 'XTick', [1 10 100 1000], 'XTickLabels', num2str([1 10 100 1000]'))
             set(gca, 'XLim', [1 2600])
+            set(gca, 'Xscale', 'log')
+            set(gca, 'YTick', [])
+
+
+            % nexttile
+            % res_plot_improved(10.^xs_res, y_res_total)
+            % title('Total')
+            % set(gca, 'XTick', [1 10 100 1000], 'XTickLabels', num2str([1 10 100 1000]'))
+            % set(gca, 'XLim', [1 2600])
 
 
             % Update most recent action
@@ -161,12 +232,12 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
                 end
 
                 % Save settings with the correct formatting
-                Geology1 = cell2table(app.ClassData(:,[1,2,3,6]),'VariableNames',{'Class', 'Min thickness', 'Max thickness', 'RGB color'});
+                Geology1 = cell2table(app.ClassData(:,[1,2,3,7]),'VariableNames',{'Class', 'Min thickness', 'Max thickness', 'RGB color'});
                 Geology2 = cell2table(app.UnitData,'VariableNames',{'Classes','Probabilities','Min no of layers','Max no of layers','Min unit thickness','Max unit thickness','Frequency','Repeat','Min depth'});
-                if size(app.ClassData,2) < 7
-                    Resistivity = cell2table(app.ClassData(:,[1,4,5]),'VariableNames',{'Class', 'Resistivity', 'Resistivity uncertainty'});
+                if size(app.ClassData,2) < 8
+                    Resistivity = cell2table(app.ClassData(:,[1,4,5,6]),'VariableNames',{'Class', 'Resistivity1', 'Resistivity2', 'Resistivity Format1'});
                 else
-                    Resistivity = cell2table(app.ClassData(:,[1,4,5,7,8]),'VariableNames',{'Class', 'Resistivity', 'Resistivity uncertainty', 'Unsaturated resistivity', 'Unsaturated resistivity uncertainty'});
+                    Resistivity = cell2table(app.ClassData(:,[1,4,5,6,8,9,10]),'VariableNames',{'Class', 'Resistivity1', 'Resistivity2', 'Resistivity Format1', 'Resistivity3', 'Resistivity4', 'Resistivity Format2'});
                 end
                 writetable(Geology1,filename, 'Sheet', 'Geology1')
                 writetable(Geology2,filename, 'Sheet', 'Geology2')
@@ -181,13 +252,32 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
             info.Classes.codes = 1:numel(info.Classes.names);
             info.Classes.min_thick = cell2mat(app.ClassData(:,2));
             info.Classes.max_thick = cell2mat(app.ClassData(:,3)); 
-            RGBString = string(app.ClassData(:,6));
+            RGBString = string(app.ClassData(:,7));
             RGBStringArray = split(RGBString,',');
             info.cmaps.Classes = str2double(RGBStringArray)./255;
-            info.Resistivity.res = cell2mat(app.ClassData(:,4));
-            res_factor = cell2mat(app.ClassData(:,5));
-            res_unc = log10(res_factor)/3;
-            info.Resistivity.res_unc = res_unc;
+
+            res1 = cellfun(@(x) str2double(split(x, ',')), app.ClassData(:, 4), 'UniformOutput', false);
+            res2 = cellfun(@(x) str2double(split(x, ',')), app.ClassData(:, 5), 'UniformOutput', false);
+            method = app.ClassData(:, 6);
+            method_is_1 = strcmp(method, 'log-gaussian');
+            method_is_2 = strcmp(method, 'uniform');
+            method_is_3 = strcmp(method, 'custom');
+
+            % Pack up as cumulative probability beforehand for speed
+            if any(method_is_3)
+                res1_log10_fine = -1:0.01:3.41;
+                for i = method_is_3
+                    res2_fine = interp1(log10(res1{i}), res2{i}, res1_log10_fine, 'linear', 0);
+                    res2_fine_norm = res2_fine./sum(res2_fine);
+                    res2_cumprobs = cumsum(res2_fine_norm);
+                    res1{i} = res1_log10_fine;
+                    res2{i} = res2_cumprobs;
+                end
+            end
+            info.Resistivity.res1 = res1;
+            info.Resistivity.res2 = res2;
+            info.Resistivity.format1 = method_is_1 + 2*method_is_2 + 3*method_is_3;
+
             info.Sections.N_sections = numel(app.UnitData(:,1)); 
             info.Sections.types = cellfun(@str2num, app.UnitData(:,1), 'UniformOutput', false);
             info.Sections.probabilities = cellfun(@str2num, app.UnitData(:,2), 'UniformOutput', false);
@@ -221,8 +311,8 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
 
             % Check for even more common user errors
             if any(info.Sections.min_layers > info.Sections.max_layers) || any(info.Sections.min_thick > info.Sections.max_thick) || any(info.Classes.min_thick > info.Classes.max_thick)
-                    uialert(app.UIFigure, 'Check min-max values.', 'Wrong input format');
-                    return;
+                uialert(app.UIFigure, 'Check min-max values.', 'Wrong input format');
+                return;
             end
             if ~all(info.Sections.repeat == 0 | info.Sections.repeat == 1)
                 uialert(app.UIFigure, 'Repeat values must be either 1 or 0 (yes or no).', 'Wrong input format');
@@ -232,20 +322,40 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
 
             % Pack up information about the water table
             if app.WaterTableCheckBox.Value
-                info.Resistivity.unsat_res = cell2mat(app.ClassData(:,7));
-                res_factor_unsat = cell2mat(app.ClassData(:,8));
-                res_unc_unsat = log10(res_factor_unsat)/3;
-                info.Resistivity.unsat_res_unc = res_unc_unsat;
+
+                res3 = cellfun(@(x) str2double(split(x, ',')), app.ClassData(:, 8), 'UniformOutput', false);
+                res4 = cellfun(@(x) str2double(split(x, ',')), app.ClassData(:, 9), 'UniformOutput', false);
+                method = app.ClassData(:, 10);
+                method_is_1 = strcmp(method, 'log-gaussian');
+                method_is_2 = strcmp(method, 'uniform');
+                method_is_3 = strcmp(method, 'custom');
+
+                % Pack up as cumulative probability beforehand for speed
+                if any(method_is_3)
+                    res3_log10_fine = -1:0.01:3.41;
+                    for i = method_is_3
+                        res4_fine = interp1(log10(res3{i}), res4{i}, res3_log10_fine, 'linear', 0);
+                        res4_fine_norm = res4_fine./sum(res4_fine);
+                        res4_cumprobs = cumsum(res4_fine_norm);
+                        res3{i} = res3_log10_fine;
+                        res4{i} = res4_cumprobs;
+                    end
+                end
+                info.Resistivity.res3 = res3;
+                info.Resistivity.res4 = res4;
+                info.Resistivity.format2 = method_is_1 + 2*method_is_2 + 3*method_is_3;
+
                 info.WaterLevel.min = app.WaterMinField.Value;
                 info.WaterLevel.max = app.WaterMaxField.Value;
             else
-                info.Resistivity.unsat_res = cell2mat(app.ClassData(:,4));
-                info.Resistivity.unsat_res_unc = res_unc;
+                info.Resistivity.res3 = info.Resistivity.res1;
+                info.Resistivity.res4 = info.Resistivity.res2;
+                info.Resistivity.format2 = info.Resistivity.format1;
             end
             
 
             % Send settings to the prior generator
-            [priorname,flag_vector] = prior_generator(info, N, dmax, dz, 0);
+            [priorname, flag_vector] = prior_generator(info, N, dmax, dz, 0);
             
 
             % Open prior file to explore the prior
@@ -329,12 +439,14 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
             if isempty(app.ClassData)
                 app.ClassData = {};
             end
+
             % Set default values
             if app.WaterTableCheckBox.Value
-                newData = {'Class name', [1], [1], [10], [2], sprintf('%0.f,%0.f,%0.f', randi(255,1,3)), [100], [2]};
+                newData = {'Class name', [1], [1], '10', '2', 'log-gaussian', sprintf('%0.f,%0.f,%0.f', randi(255,1,3)), '100', '2', 'log-gaussian'};
             else
-                newData = {'Class name', [1], [1], [10], [2], sprintf('%0.f,%0.f,%0.f', randi(255,1,3))};
+                newData = {'Class name', [1], [1], '10', '2', 'log-gaussian', sprintf('%0.f,%0.f,%0.f', randi(255,1,3))};
             end
+
             if isempty(selectedRow)
                 app.ClassData = [app.ClassData; newData];
             else
@@ -371,11 +483,13 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
             if isempty(app.UnitData)
                 app.UnitData = {};
             end
+
             if isempty(app.ClassData)
                 str = '1';
             else
                 str = join(string(1:height(app.ClassData)), ',');
             end
+
             % Set default values
             newData = {char(str), char('1'), [1], [1], [1], [1], [1], [1], [0]};
             if isempty(selectedRow)
@@ -425,16 +539,31 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
 
             if any(strcmp(ext, {'.xlsx', '.xls'}))  
                 % Open setting with correct formatting
-                lithData = readcell(filename, 'Sheet', 'Geology1'); lithData(1, :) = [];
-                resData = readcell(filename, 'Sheet', 'Resistivity'); resData(1, :) = [];
-                classData = [lithData(:,1:3), resData(:,2:3), lithData(:,4)];
+                lithData = readcell(filename, 'Sheet', 'Geology1'); 
+                lithHeaders = lithData(1, :);
+                lithData(1, :) = [];
+                resData = readcell(filename, 'Sheet', 'Resistivity');
+                resHeaders = resData(1, :);
+                resData(1, :) = [];
+
+                % After introduction of custom input values needs to be as strings
+                idx_mat = ~cellfun(@ischar, resData(:,2));
+                resData(idx_mat,2) = cellfun(@num2str, resData(idx_mat,2), 'UniformOutput', false);
+                idx_mat = ~cellfun(@ischar, resData(:,3));
+                resData(idx_mat,3) = cellfun(@num2str, resData(idx_mat,3), 'UniformOutput', false);
+                classData = [lithData(:,1:3), resData(:,2:4), lithData(:,4)];
+                
                 if any(strcmp('Water table', sheetnames(filename)))
                     waterData = readcell(filename, 'Sheet', 'Water table'); waterData(1, :) = [];
                     app.WaterTableCheckBox.Value = 1;
                     app.WaterTable(app);
                     app.WaterMinField.Value = cell2mat(waterData(1));
                     app.WaterMaxField.Value = cell2mat(waterData(2));
-                    classData = [classData,resData(:,4:5)];
+                    idx_mat = ~cellfun(@ischar, resData(:,5));
+                    resData(idx_mat,5) = cellfun(@num2str, resData(idx_mat,5), 'UniformOutput', false);
+                    idx_mat = ~cellfun(@ischar, resData(:,6));
+                    resData(idx_mat,6) = cellfun(@num2str, resData(idx_mat,6), 'UniformOutput', false);
+                    classData = [classData,resData(:,5:7)];
                 else
                     app.WaterTableCheckBox.Value = 0;
                     app.WaterTableLabel.Visible = 'off';
@@ -516,12 +645,12 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
 
            
             % Save settings with the correct formatting
-            Geology1 = cell2table(app.ClassData(:,[1,2,3,6]),'VariableNames',{'Class', 'Min thickness', 'Max thickness', 'RGB color'});
+            Geology1 = cell2table(app.ClassData(:,[1,2,3,7]),'VariableNames',{'Class', 'Min thickness', 'Max thickness', 'RGB color'});
             Geology2 = cell2table(app.UnitData,'VariableNames',{'Classes','Probabilities','Min no of layers','Max no of layers','Min unit thickness','Max unit thickness','Frequency','Repeat','Min depth'});
-            if size(app.ClassData,2) < 7
-                Resistivity = cell2table(app.ClassData(:,[1,4,5]),'VariableNames',{'Class', 'Resistivity', 'Resistivity uncertainty'});
+            if size(app.ClassData,2) < 8
+                Resistivity = cell2table(app.ClassData(:,[1,4,5,6]),'VariableNames',{'Class', 'Resistivity1', 'Resistivity2', 'Resistivity Format1'});
             else
-                Resistivity = cell2table(app.ClassData(:,[1,4,5,7,8]),'VariableNames',{'Class', 'Resistivity', 'Resistivity uncertainty', 'Unsaturated resistivity', 'Unsaturated resistivity uncertainty'});
+                Resistivity = cell2table(app.ClassData(:,[1,4,5,6,8,9,10]),'VariableNames',{'Class', 'Resistivity1', 'Resistivity2', 'Resistivity Format1', 'Resistivity3', 'Resistivity4', 'Resistivity Format2'});
             end
 
 
@@ -544,28 +673,31 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
                 % Structure tables inside text file
                 fprintf(fid, 'Geology1-Resistivity\n');
                 if app.WaterTableCheckBox.Value
-                    fprintf(fid, '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n', Geo1Res_combined{:});
+                    fprintf(fid, '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n', Geo1Res_combined{:});
                     for i = 1:size(app.ClassData, 1)
-                        fprintf(fid, '%s\t%g\t%g\t%g\t%g\t%s\t%g\t%g\n', ...
+                        fprintf(fid, '%s\t%g\t%g\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n', ...
                             string(app.ClassData{i,1}), ...
                             app.ClassData{i,2}, ...
                             app.ClassData{i,3}, ...
-                            app.ClassData{i,4}, ...
-                            app.ClassData{i,5}, ...
+                            string(app.ClassData{i,4}), ...
+                            string(app.ClassData{i,5}), ...
                             string(app.ClassData{i,6}), ...
-                            app.ClassData{i,7}, ...
-                            app.ClassData{i,8});
+                            string(app.ClassData{i,7}), ...
+                            string(app.ClassData{i,8}), ...
+                            string(app.ClassData{i,9}), ...
+                            string(app.ClassData{i,10}));
                     end
                 else
-                    fprintf(fid, '%s\t%s\t%s\t%s\t%s\t%s\n', Geo1Res_combined{:});
+                    fprintf(fid, '%s\t%s\t%s\t%s\t%s\t%s\t%s\n', Geo1Res_combined{:});
                     for i = 1:size(app.ClassData, 1)
-                        fprintf(fid, '%s\t%g\t%g\t%g\t%g\t%s\n', ...
+                        fprintf(fid, '%s\t%g\t%g\t%s\t%s\t%s\t%s\n', ...
                             string(app.ClassData{i,1}), ...
                             app.ClassData{i,2}, ...
                             app.ClassData{i,3}, ...
-                            app.ClassData{i,4}, ...
-                            app.ClassData{i,5}, ...
-                            string(app.ClassData{i,6}));
+                            string(app.ClassData{i,4}), ...
+                            string(app.ClassData{i,5}), ...
+                            string(app.ClassData{i,6}), ...
+                            string(app.ClassData{i,7}));
                     end
                 end
             
@@ -604,39 +736,99 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
 
 
             % Update color assistant if color is changed
-            if event.Indices(2) == 6
+            if event.Indices(2) == 7
                 app.ColorButton.BackgroundColor = str2num(event.NewData)./255;
             end
-        
+            
+            % Update color assistant if color is changed
+            if event.Indices(2) == 6 || event.Indices(2) == 10
+                newValue = event.NewData;
+                classData = app.ClassDataTable.Data;
+                validNames = {'log-gaussian';'uniform';'custom'};
+
+                d = editDistance(newValue, validNames);
+
+                [~, idx] = min(d);
+                bestMatch = validNames{idx};
+
+                classData{event.Indices(1), event.Indices(2)} = bestMatch;
+                app.ClassDataTable.Data = classData;
+                app.ClassData = classData;
+            end
 
             %% Update resistivity figure if it's already open
             if ~isempty(fig)
 
                 class_changed = event.Indices(1);
+                method = app.ClassData{class_changed, 6};
                 type = app.ClassData(class_changed,1);
-                res_mean = cell2mat(app.ClassData(class_changed,4));
-                res_factor = cell2mat(app.ClassData(class_changed,5));
-                res_unc = log10(res_factor)/3;
-
+                res1 = str2double(split(app.ClassData{class_changed, 4}, ','));
+                res2 = str2double(split(app.ClassData{class_changed, 5}, ','));
 
                 figure(fig)
                 nexttile(class_changed)
                 cla;
-                x=-1:0.01:4;
-                y1=normpdf(x, log10(res_mean), res_unc);
-                res_plot_improved(10.^x, y1)
-                if size(app.ClassData,2) > 7
-                    res_mean_unsat = cell2mat(app.ClassData(class_changed,7));
-                    res_factor_unsat = cell2mat(app.ClassData(class_changed,8));
-                    res_unc_unsat = log10(res_factor_unsat)/3;
-                    y2=normpdf(x, log10(res_mean_unsat), res_unc_unsat);
-                    res_plot_improved(10.^x, y2)
-                    plot(10.^x, y2, '-r', 'LineWidth', 1.5)
+
+                xs_res=-1:0.01:3.41;
+
+                switch method
+                    
+                    case  'log-gaussian'
+                        res_unc = log10(res2)/3;
+
+                        y1_res = normpdf(xs_res, log10(res1), res_unc);
+                        
+                   case 'uniform'
+                        res_min = res1;
+                        res_max = res2;
+
+                        y1_res = ones(size(xs_res));
+                        y1_res(10.^xs_res < res_min) = 0;
+                        y1_res(10.^xs_res > res_max) = 0;        
+                
+                   case 'custom'
+                        ress = res1;
+                        res_prob = res2;
+
+                        y1_res = interp1(ress, res_prob, 10.^xs_res, 'linear', 0);
+                end   
+
+                res_plot_improved(10.^xs_res, y1_res)
+
+
+                % Draw unsaturated resistivity with a red line if relevant
+                if size(app.ClassData, 2) > 8
+                    res3 = str2double(split(app.ClassData{class_changed, 8}, ','));
+                    res4 = str2double(split(app.ClassData{class_changed, 9}, ','));
+                    method2 = app.ClassData{class_changed, 10};
+
+                    switch method2
+                        case 'log-gaussian'
+                            res_unc = log10(res4)/3;
+                            y2_res=normpdf(xs_res, log10(res3), res_unc);
+
+                        case 'uniform'
+                            res_min = res3;
+                            res_max = res4;
+                            y2_res = ones(size(xs_res));
+                            y2_res(10.^xs_res < res_min) = 0;
+                            y2_res(10.^xs_res > res_max) = 0;
+                            
+                        case 'custom'
+                            ress = res3;
+                            res_prob = res4;
+    
+                            y2_res = interp1(ress, res_prob, 10.^xs_res, 'linear', 0);
+                    end
+                    res_plot_improved(10.^xs_res, y2_res)
+                    plot(10.^xs_res, y2_res, '-r', 'LineWidth', 1.5)        
                 end
-                plot(10.^x, y1, '-k', 'LineWidth', 1.5)
-                title(type)
-                xlabel('Resistivity [\Omegam]')
-                set(gca, 'XTick', [0.1 1 10 100 1000], 'XTickLabels', num2str([0.1 1 10 100 1000]'))
+
+                % Plot black line to ensure curve visibile
+                plot(10.^xs_res, y1_res, '-k', 'LineWidth', 1.5)
+                title(type, 'Interpreter', 'none')
+                set(gca, 'XTick', [1 10 100 1000], 'XTickLabels', num2str([1 10 100 1000]'))
+                set(gca, 'XLim', [1 2600])
             end
         end
 
@@ -658,11 +850,13 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
                     for i = 1:nRows
                         app.ClassData{i, nCols+1} = app.ClassData{i,4};
                         app.ClassData{i, nCols+2} = app.ClassData{i,5};
+                        app.ClassData{i, nCols+3} = app.ClassData{i,6};
                     end
                 end
                 if numel(currentNames) < 8
-                    currentNames{end+1} = 'Unsaturated res.';
-                    currentNames{end+1} = 'Unsaturated res. factor';
+                    currentNames{end+1} = 'Resistivity3';
+                    currentNames{end+1} = 'Resistivity4';
+                    currentNames{end+1} = 'Resistivity Format2';
                 end
                 % Make more settings available
                 app.ClassDataTable.ColumnName = currentNames;
@@ -678,12 +872,12 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
             % When unchecked, remove the last two columns (if they exist)
             else 
                 if numel(currentNames) >= 8
-                    currentNames(end-1:end) = [];
+                    currentNames(8:end) = [];
                 end
                 app.ClassDataTable.ColumnName = currentNames;
                 [nRows, nCols] = size(app.ClassData);
                 if nCols >= 8
-                    app.ClassData = app.ClassData(:, 1:nCols-2);
+                    app.ClassData = app.ClassData(:, 1:nCols-3);
                 end
                 app.WaterTableLabel.Visible = 'off';
                 app.WaterMinField.Visible = 'off';
@@ -742,7 +936,7 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
             SchreenSize = get(0, 'ScreenSize');
             w = 400; h = 210;
             dlg = uifigure('Name', 'Merge priors', 'Position', [(SchreenSize(3)-w)/2 (SchreenSize(4)-h)/2 w h]);
-            DialogIntroLabel = uilabel(dlg, 'Text', 'Select inputs priors and out prior name:', 'FontSize',13, 'Position', [50 180 330 25]);
+            DialogIntroLabel = uilabel(dlg, 'Text', 'Select inputs priors and out prior name:', 'FontSize', 13, 'Position', [50 180 330 25]);
             Filename1Field = uieditfield(dlg, 'Position', [50 150 330 25], 'Value', 'prior1.h5', 'Editable', false);
             Filename2Field = uieditfield(dlg, 'Position', [50 120 330 25], 'Value', 'prior2.h5', 'Editable', false);
             GetFile1Button = uibutton(dlg,  'Text', '...', 'Position', [10 150 25 25], 'ButtonPushedFcn', @(src, event) GetFileFunction(Filename1Field));
@@ -834,7 +1028,7 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
                 if ~isempty(idx) && ~isempty(selectedRow) 
                     selectedColor = [T.R(idx), T.G(idx), T.B(idx)];
                     classData = app.ClassDataTable.Data;
-                    classData{selectedRow, 6} = sprintf('%0.f,%0.f,%0.f', selectedColor);
+                    classData{selectedRow, 7} = sprintf('%0.f,%0.f,%0.f', selectedColor);
                     app.ClassDataTable.Data = classData;
                     app.ClassData = classData;
                     app.ColorButton.BackgroundColor = selectedColor./255;
@@ -913,13 +1107,13 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
     methods (Access = private)
         function createComponents(app)
             screenSize = get(0, 'ScreenSize');
-            app.UIFigure = uifigure('Name', 'GeoPrior v1.0','Position', [screenSize(1:2) + 100, screenSize(3:4) - 200]);
+            app.UIFigure = uifigure('Name', 'GeoPrior v1.1','Position', [screenSize(1:2) + 100, screenSize(3:4) - 200]);
 
             mainGrid = uigridlayout(app.UIFigure, [1,3]);
             mainGrid.ColumnWidth = {'1x','3x','2x'};
 
                 leftPanel = uipanel(mainGrid, 'Title', 'Controls');
-                leftGrid = uigridlayout(leftPanel, [8,1], 'RowHeight', {'fit','1x','fit','fit','fit','fit','fit','fit','fit'}, 'Scrollable', 'on', 'Padding', [5 5 5 5]);
+                leftGrid = uigridlayout(leftPanel, [9,1], 'RowHeight', {'fit','1x','fit','fit','fit','fit','fit','fit','fit','fit'}, 'Scrollable', 'on', 'Padding', [5 5 5 5]);
         
                     editFieldGrid = uigridlayout(leftGrid, [4, 2], 'ColumnWidth', {'2x', '3x'}, 'RowHeight', {'1x', '1x', '1x', '1x'}, 'Padding', [0 0 0 0]);
                         app.FilenameLabel = uilabel(editFieldGrid, 'Text', 'Settings:', 'FontSize',13);
@@ -959,7 +1153,7 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
                             upDownUnitGrid = uigridlayout(removeUnitGrid, [2, 1], 'RowHeight', {'1x', '1x'}, 'Padding', [0 0 0 0]);
                                 app.UpUnitButton = uibutton(upDownUnitGrid, 'push', 'Text', '↑', 'ButtonPushedFcn', @app.upUnit);
                                 app.DownUnitButton = uibutton(upDownUnitGrid, 'push', 'Text', '↓', 'ButtonPushedFcn', @app.downUnit);
-                                
+                    
                     app.WaterTableCheckBox = uicheckbox(leftGrid, 'Text', 'Add water table', 'ValueChangedFcn', @(src, event) app.WaterTable(src, event));
                     app.WaterTableLabel = uilabel(leftGrid, 'Text', 'Water level (min-max)', 'Visible','off');
                     app.WaterMinField = uieditfield(leftGrid, 'numeric','Value', 0, 'Visible','off');
@@ -975,7 +1169,7 @@ classdef GeoPrior1DApp < matlab.apps.AppBase
                 middlePanel = uipanel(mainGrid, 'Title', 'Class and unit data');
                 middleGrid = uigridlayout(middlePanel, [3,1], 'RowHeight', {'1x', '1x', 'fit'}, 'Padding', [0 0 0 0]);
                     app.ClassDataTable = uitable(middleGrid, 'Data', {}, 'SelectionType', 'row', 'ColumnEditable', true, 'CellEditCallback', @(src, event)app.ClassDataTableCellEdit(event));
-                    app.ClassDataTable.ColumnName = {'Class', 'Min Thickness', 'Max Thickness', 'Resistivity', 'Res. factor', 'RGB'};
+                    app.ClassDataTable.ColumnName = {'Class', 'Min Thickness', 'Max Thickness', 'Resistivity1', 'Resistivity2', 'Resistivity format', 'RGB'};
                     app.UnitDataTable = uitable(middleGrid, 'Data', {}, 'SelectionType', 'row', 'ColumnEditable', true, 'CellEditCallback', @(src, event)app.UnitDataTableCellEdit(event));
                     app.UnitDataTable.ColumnName = {'Classes','Probabilities','Min # layers','Max # layers','Min thickness','Max thickness','Frequency','Repeat','Min Depth'};
                     app.MessageLabel = uilabel(middleGrid, 'Text', {' ', 'Welcome back!'});

@@ -20,12 +20,6 @@ for i = start_read:stop_read
     cellValues = cellValues{:};
     cellValues{2} = [str2num(cellValues{2})];
     cellValues{3} = [str2num(cellValues{3})];
-    cellValues{4} = [str2num(cellValues{4})];
-    cellValues{5} = [str2num(cellValues{5})];
-    if ~isempty(idx.WaterTable)
-        cellValues{7} = [str2num(cellValues{7})];
-        cellValues{8} = [str2num(cellValues{8})];
-    end
     
     ClassData = [ClassData; cellValues];
 end
