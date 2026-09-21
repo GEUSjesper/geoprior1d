@@ -109,10 +109,22 @@ xlabel('Number of layers', 'FontSize', 12)
 ylabel('Realizations', 'FontSize', 12)
 
 
+% % Plot thickness of layers
+% nexttile(13, [1,2])
+% thickness_represented = find(sum(thickness_counts, 2) > 0);
+% imagesc(1:numel(types), 1:numel(thickness_represented), thickness_counts(thickness_represented, :))
+% title('Layer thicknesses')
+% set(gca, 'Colormap', flipud(bone))
+% cb = colorbar;
+% ylabel(cb, 'Occurences', 'FontSize', 12)
+% set(gca, 'xtick', 1:n_types, 'xticklabel', types, 'FontSize', 12)
+% xtickangle(90)
+% ylabel('Thickness [m]', 'FontSize', 12)
+% set(gca,'ytick', 1:numel(thickness_represented), 'yticklabels',z_vec(thickness_represented))
+
 % Plot thickness of layers
 nexttile(13, [1,2])
-thickness_represented = find(sum(thickness_counts, 2) > 0);
-imagesc(1:numel(types), z_vec(thickness_represented), thickness_counts(thickness_represented, :))
+imagesc(1:numel(types), 1:numel(z_vec), thickness_counts)
 title('Layer thicknesses')
 set(gca, 'Colormap', flipud(bone))
 cb = colorbar;
@@ -120,4 +132,3 @@ ylabel(cb, 'Occurences', 'FontSize', 12)
 set(gca, 'xtick', 1:n_types, 'xticklabel', types, 'FontSize', 12)
 xtickangle(90)
 ylabel('Thickness [m]', 'FontSize', 12)
-

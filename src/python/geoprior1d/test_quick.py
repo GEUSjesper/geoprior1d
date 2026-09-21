@@ -2,6 +2,7 @@
 
 from geoprior1d import geoprior1d, generate_prior_realizations
 from geoprior1d.io import extract_prior_info
+from geoprior1d.prior_summary import prior_summary
 import numpy as np
 import os
 
@@ -30,6 +31,8 @@ try:
         doPlot=1
     )
 
+    prior_summary(filename)
+    
     print("✓ SUCCESS!")
     print(f"✓ Generated {n_realizations} realizations")
     print(f"✓ Output file: {filename}")
