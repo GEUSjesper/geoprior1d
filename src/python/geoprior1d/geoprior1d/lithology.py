@@ -23,8 +23,10 @@ def _check_section_depth_constraints(thick_sections, N, min_depths):
     Returns:
         int: 1 if constraints violated, 0 otherwise
     """
-    for i in range(1, N):
-        if np.sum(thick_sections[:i]) < min_depths[i]:
+    # Absent upper units must not condition the units above them. The final
+    # section is background, whose depth constraint is not an active input.
+    for i in range(1, N - 1):
+        if thick_sections[i] != 0 and np.sum(thick_sections[:i]) < min_depths[i]:
             return 1
     return 0
 
