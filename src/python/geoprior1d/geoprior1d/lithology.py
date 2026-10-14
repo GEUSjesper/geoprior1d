@@ -166,6 +166,10 @@ def prior_lith_reals(info, z, flag_vector):
 
     flag_vector[2] = flag_vector[2] + tries
 
+    # Every upper unit can be absent (frequency < 1): the background then fills the model, as in MATLAB
+    if not any(len(t) for t in types_layers):
+        return m, layer_index, flag_vector
+
     # Combine
     Ts_all = np.concatenate([arr for arr in thick_layers if arr.size > 0])
     types_all = np.concatenate([np.array(t) for t in types_layers if len(t) > 0])
