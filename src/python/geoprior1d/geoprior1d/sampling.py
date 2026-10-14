@@ -92,25 +92,22 @@ def get_prior_sample(info, z_vec, Nreals, n_processes=-1):
                         z_vec=z_vec,
                         seed_offset=seed_offset)
 
-        # Process in parallel with progress bar
+        # Bound outstanding work/results instead of retaining every model in a
+        # Python list alongside the output matrices. Realization indices and
+        # seeds remain global, independent of batch and process count.
         with Pool(processes=n_workers) as pool:
-            results = list(tqdm(
-                pool.imap(worker, range(Nreals)),
-                total=Nreals,
-                desc="Generating priors",
-                unit="real"
-            ))
-
-        # Unpack results
-        for i, (m, n, o, local_flag) in enumerate(results):
-            ms[i, :] = m
-            ns[i, :] = n
-            os[i] = o
-
-            # Aggregate flags
-            flag_vector[0] = max(flag_vector[0], local_flag[0])
-            flag_vector[1] = max(flag_vector[1], local_flag[1])
-            flag_vector[2] += local_flag[2]
+            with tqdm(total=Nreals, desc="Generating priors", unit="real") as progress:
+                for start in range(0, Nreals, 2048):
+                    stop = min(start + 2048, Nreals)
+                    results = pool.imap(worker, range(start, stop), chunksize=16)
+                    for i, (m, n, o, local_flag) in enumerate(results, start):
+                        ms[i, :] = m
+                        ns[i, :] = n
+                        os[i] = o
+                        flag_vector[0] = max(flag_vector[0], local_flag[0])
+                        flag_vector[1] = max(flag_vector[1], local_flag[1])
+                        flag_vector[2] += local_flag[2]
+                        progress.update(1)
 
     # ========== SEQUENTIAL EXECUTION ==========
     else:

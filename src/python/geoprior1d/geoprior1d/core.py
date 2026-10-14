@@ -87,7 +87,7 @@ def save_prior_to_hdf5(output_file, ms, ns, ws, info, cmaps, z_vec, dmax, dz,
     with h5py.File(name, 'w') as f:
 
         # M1: Resistivity
-        dset_M1 = f.create_dataset('M1', data=ns.astype(np.float32))
+        dset_M1 = f.create_dataset('M1', data=ns.astype(np.float32, copy=False))
         dset_M1.attrs['is_discrete'] = 0
         dset_M1.attrs['name'] = 'Resistivity'
         dset_M1.attrs['x'] = np.arange(0, dmax, dz)
